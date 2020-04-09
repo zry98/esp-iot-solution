@@ -50,6 +50,7 @@ void mpu6050_test_task(void* pvParameters)
     uint8_t mpu6050_deviceid;
     mpu6050_acce_value_t acce;
     mpu6050_gyro_value_t gyro;
+    complimentary_angle_t angle;
     
     iot_mpu6050_get_deviceid(mpu6050, &mpu6050_deviceid);
     printf("mpu6050 device ID is: 0x%02x\n", mpu6050_deviceid);
@@ -63,6 +64,8 @@ void mpu6050_test_task(void* pvParameters)
         printf("acce_x:%.2f, acce_y:%.2f, acce_z:%.2f\n", acce.acce_x, acce.acce_y, acce.acce_z);
         iot_mpu6050_get_gyro(mpu6050, &gyro);
         printf("gyro_x:%.2f, gyro_y:%.2f, gyro_z:%.2f\n", gyro.gyro_x, gyro.gyro_y, gyro.gyro_z);
+        iot_mpu6050_complimentory_filter(mpu6050,&acce,&gyro,&angle);
+        printf("pitch:%.2f, roll:%.2f, yaw:%.2f\n", angle.pitch, angle.roll, angle.yaw);  
         printf("**************************************************\n");
         vTaskDelay(1000 / portTICK_RATE_MS);
     }

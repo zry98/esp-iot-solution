@@ -149,6 +149,7 @@ typedef struct {
 typedef struct {
     float roll;
     float pitch;
+    float yaw;
 } complimentary_angle_t;
 
 typedef void* mpu6050_handle_t;

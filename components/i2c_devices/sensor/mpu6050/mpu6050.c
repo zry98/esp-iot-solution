@@ -353,8 +353,8 @@ esp_err_t iot_mpu6050_complimentory_filter(mpu6050_handle_t sensor, mpu6050_acce
                                    mpu6050_gyro_value_t *gyro_value, complimentary_angle_t *complimentary_angle)
 {
     float acce_angle[2];
-    float gyro_angle[2];
-    float gyro_rate[2];
+    float gyro_angle[3];
+    float gyro_rate[3];
     mpu6050_dev_t* sens = (mpu6050_dev_t*) sensor;
     
     sens->counter++;
@@ -363,6 +363,7 @@ esp_err_t iot_mpu6050_complimentory_filter(mpu6050_handle_t sensor, mpu6050_acce
         acce_angle[1] = (atan2(acce_value->acce_x, acce_value->acce_z) * RAD_TO_DEG);
         complimentary_angle->roll = acce_angle[0];
         complimentary_angle->pitch = acce_angle[1];
+        complimentary_angle->yaw = 0;
         gettimeofday(sens->timer, NULL);
         return ESP_OK;
     }
@@ -378,12 +379,21 @@ esp_err_t iot_mpu6050_complimentory_filter(mpu6050_handle_t sensor, mpu6050_acce
 
     gyro_rate[0] = gyro_value->gyro_x;
     gyro_rate[1] = gyro_value->gyro_y;
+    gyro_rate[2] = gyro_value->gyro_z;
     gyro_angle[0] = gyro_rate[0] * sens->dt;
     gyro_angle[1] = gyro_rate[1] * sens->dt;
+    gyro_angle[2] = gyro_rate[2] * sens->dt;
 
     complimentary_angle->roll = (ALPHA * (complimentary_angle->roll + gyro_angle[0])) + ((1-ALPHA) * acce_angle[0]);
     complimentary_angle->pitch = (ALPHA * (complimentary_angle->pitch + gyro_angle[1])) + ((1-ALPHA) * acce_angle[1]);
-
+    float yaw = complimentary_angle->yaw  + gyro_angle[2];
+    if (yaw > 360.0f){
+        yaw =  yaw - 360.0f;  
+    }
+     if (yaw < -360.0f){
+        yaw =  yaw + 360.0f;  
+    } 
+    complimentary_angle->yaw = yaw; 
     return ESP_OK;
 }
 
