@@ -561,7 +561,7 @@ static esp_err_t _usb_port_event_wait(hcd_port_handle_t expected_port_hdl, hcd_p
     } while (ret == ESP_ERR_NOT_FOUND);
 
     return ret;
-}
+
 
 static usb_phy_handle_t s_phy_handle = NULL;
 
