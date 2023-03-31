@@ -698,7 +698,7 @@ static void _usb_urb_context_update(urb_t *urb, void *context)
 static void _usb_urb_free(urb_t *urb)
 {
     //Free data buffers of each URB
-    if (urb && urb.transfer.data_buffer) {
+    if (urb && urb->transfer.data_buffer) {
         heap_caps_free(urb->transfer.data_buffer);
     }
     //Free the URB list
