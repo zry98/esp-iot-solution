@@ -441,7 +441,7 @@ typedef struct _uvc_stream_handle {
     struct uvc_frame frame;
     enum uvc_frame_format frame_format;
     struct timespec capture_time_finished;
-} _uvc_stream_handle_t;
+} _uvc_stream_handle_t
 
 typedef enum {
     USER_EVENT,
