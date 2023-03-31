@@ -1157,7 +1157,7 @@ static esp_err_t usb_parse_config_descriptor(const usb_config_desc_t *cfg_desc, 
         case CS_INTERFACE_DESC:
             if ( context_class == USB_CLASS_VIDEO && context_subclass == VIDEO_SUBCLASS_CONTROL) {
                 const desc_header_t *header = (const desc_header_t *)next_desc;
-                switch (header->bDescriptorSubtype) {
+                switch (header.bDescriptorSubtype) {
                 default:
                     ESP_LOGD(TAG, "Found video control entity, skip");
                     break;
