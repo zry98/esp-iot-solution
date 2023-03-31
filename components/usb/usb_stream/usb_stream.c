@@ -1008,7 +1008,6 @@ static esp_err_t usb_parse_config_descriptor(const usb_config_desc_t *cfg_desc, 
         return ESP_ERR_INVALID_ARG;
     }
 
-    int offset = 0;
     bool already_next = false;
     uint16_t wTotalLength = cfg_desc->wTotalLength;
     /* flags indicate if required format and frame found */
