@@ -12,6 +12,8 @@ extern "C" {
 
 int ext_vfs_gpio_init(void);
 int ext_vfs_i2c_init(void);
+int ext_vfs_ledc_init(void);
+int ext_vfs_spi_init(void);
 
 #ifdef __cplusplus
 }

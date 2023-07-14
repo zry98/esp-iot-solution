@@ -1,3 +1,28 @@
+## v0.4.8 - 2023-05-24
+
+* Add unit test app
+
+### Bugfix:
+
+* fix customer target redefinition issue
+
+## v0.4.7 - 2023-04-21
+
+* gen_compressed_ota: support the addition of a v2 compressed OTA header to compressed firmware.
+
+## v0.4.6 - 2023-04-20
+
+* relinker: add IDF v4.3.x support
+
+## v0.4.5 - 2023-04-17
+
+* gen_compressed_ota: remove slash use in gen_custom_ota.py so that the script can be used in the Windows cmd terminal.
+
+## v0.4.4 - 2023-04-07
+
+* relinker: suppressing the creation of `__pycache__`
+* relinker: support same name objects in one library
+
 ## v0.4.3 - 2023-03-24
 
 * relinker: support decoding to get IRAM excluded libraries

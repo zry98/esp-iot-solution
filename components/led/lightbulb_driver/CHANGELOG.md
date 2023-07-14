@@ -1,6 +1,44 @@
 # ChangeLog
+## v0.4.0 - 2023-7-10
 
-## v0.2.2 - 2022-3-10
+### Enhancements:
+
+* The PWM driver will update the timer resolution based on the incoming PWM frequency to accommodate a wider range of frequencies.
+* Remove the blocking check of the timer status in `lightbulb_basic_effect_start` to allow for subsequent calls within the callback.
+
+## v0.3.3 - 2023-7-04
+
+### Bug Fixes:
+
+* Fixed a compilation problem caused by a macro naming error.
+
+## v0.3.2 - 2023-6-02
+
+### Bug Fixes:
+
+* Fixed a thread safety issue
+
+## v0.3.1 - 2023-5-15
+
+### Enhancements:
+
+* Add an active flag to gptimer to reduce invalid error print in the IDF gptimer driver
+
+### Bug Fixes:
+
+* Fixed a wrong error on kelvin range
+
+## v0.3.0 - 2023-5-8
+
+### Enhancements:
+
+* Provide an option to use gptimer instead of esptimer to generate ticks for the fade process
+
+### Bug Fixes:
+
+* Fixed a wrong conversion on `percentage_convert_to_kelvin`
+
+## v0.2.2 - 2023-3-10
 
 ### Bug Fixes:
 
@@ -8,7 +46,7 @@
 * Provides configuration options for the iic task instead of hardcoding
 * Added null pointer judgment to effect timer
 
-## v0.2.1 - 2022-2-21
+## v0.2.1 - 2023-2-21
 
 ### Bug Fixes:
 
@@ -16,7 +54,7 @@
   Please read some description of the macro PWM_ENABLE_HW_FADE in Kconfig
 * Effect interrupt_forbidden flag will allow to set when total_ms == 0
 
-## v0.2.0 - 2022-2-8
+## v0.2.0 - 2023-2-8
 
 ### Enhancements:
 
@@ -27,7 +65,7 @@
 
 * Fix nvs structure naming error
 
-## v0.1.0 - 2022-1-11
+## v0.1.0 - 2023-1-11
 
 ### Enhancements:
 

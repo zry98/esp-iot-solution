@@ -2,15 +2,17 @@
 
 [![Component Registry](https://components.espressif.com/components/espressif/bootloader_support_plus/badge.svg)](https://components.espressif.com/components/espressif/bootloader_support_plus)
 
-* [中文版]((https://github.com/espressif/esp-iot-solution/blob/master/components/bootloader_support_plus/README_CN.md)
+* [中文版](https://github.com/espressif/esp-iot-solution/blob/master/components/bootloader_support_plus/README_CN.md)
 
 ## Overview
 The `bootloader support plus` is an enhanced bootloader based on [custom_bootloader](https://github.com/espressif/esp-idf/tree/master/examples/custom_bootloader) . The firmware update function is supported in the bootloader stage by decompressing the compressed firmware. In this solution, you can directly use the original OTA APIs (such as [esp_ota](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/ota.html#api-reference)、[esp_https_ota](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/esp_https_ota.html#api-reference)). The following table shows the Espressif SoCs that are compatible with `bootloader support plus` and their corresponding ESP-IDF versions.
 
-| Chip     | ESP-IDF Release/v5.0                                         | ESP-IDF Master                                               |
+| Chip     | ESP-IDF Release/v5.0                                         | ESP-IDF Release/v5.1                           |
 | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ESP32-C3 | [![alt text](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e) | [![alt text](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e) |
 | ESP32-C2 | [![alt text](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e) | [![alt text](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e) |
+| ESP32 | [![alt text](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e) |[![alt text](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)|
+| ESP32C6 | N/A |[![alt text](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)](https://camo.githubusercontent.com/bd5f5f82b920744ff961517942e99a46699fee58737cd9b31bf56e5ca41b781b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d737570706f727465642d677265656e)|
 
 ## Compression ratio
 
@@ -98,6 +100,8 @@ In order to use compressed updates, you need to make the following changes:
 
 6. Create a partition table that supports compressed updates. By default, the last partition of type `app` in the partition table is used as the partition for storing compressed firmware. Because the size of the compressed firmware will be smaller than that of the original firmware, the partition for storing the compressed firmware can be set smaller.
 
+7. Enable compressed OTA support by running `idf.py menuconfig -> Bootloader config (Custom) -> Enable compressed OTA support` in the project directory.
+
 ## How to generate compressed firmware
 
 The [cmake_utilites](https://components.espressif.com/components/espressif/cmake_utilities) component is used to generate compressed firmware. After adding this component, you can generate a compressed firmware by running:
@@ -133,6 +137,29 @@ CMakeLists.txt not found in project directory /home/username
 ```
 
 A1. This is because an older version packege manager was used, please run `pip install -U idf-component-manager` in ESP-IDF environment to update.
+
+Q2. Can a device that has used the esp-bootloader-plus solution use the bootloader-support-plus solution?
+
+A2. Yes. You can use script [gen_custom_ota.py](https://github.com/espressif/esp-iot-solution/blob/master/tools/cmake_utilities/scripts/gen_custom_ota.py) to execute the following commands to generate compressed firmware suitable for the esp bootloader plus solution:
+
+```
+python3 gen_compressed_ota.py -hv v2 -i simple_ota.bin
+```
+
+In addition, because the two solutions adopt different file formats and different mechanisms for triggering updates, please ensure that devices that have already used the esp bootloader plus solution continue to use the partition table that contains the storage partition with subtype 0x22:
+
+```
+# Name,   Type, SubType, Offset,   Size, Flags
+phy_init, data, phy, 0xf000,        4k
+nvs,      data, nvs,       ,        28k
+otadata,  data, ota,       ,        8k
+ota_0,    app,  ota_0,     ,        1216k,
+storage,  data, 0x22,      ,        640k,
+```
+
+Then enable the `CONDIF_ENABLE_LEGACY_ESP_BOOTLOADER_PLUS_V2_SUPPORT` option in menuconfig.
+
+In the end, you just need to download the compressed firmware to the storage partition and reboot the device to trigger the update.
 
 ## Contributing
 

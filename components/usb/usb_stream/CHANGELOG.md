@@ -1,5 +1,95 @@
 # ChangeLog
 
+## v1.0.4 - 2023-07-05
+
+### Enhancements:
+
+* USB:
+  * Add retry mechanism if device enumeration failed
+
+## v1.0.3 - 2023-06-01
+
+### Bug Fixes:
+
+* Fix Quick Start Mode usb stream can not stop
+
+### Enhancements:
+
+* UAC:
+  * Support UAC work in Quick Start Mode (Device must support skip enum process)
+
+## v1.0.2 - 2023-05-19
+
+### Enhancements:
+
+* UAC:
+  * Add UAC audio player example, play 48 KHz 16bit 2ch audio to USB headset
+
+## v1.0.1 - 2023-05-18
+
+### Enhancements:
+
+* USB:
+  * Support resume/suspend stream in `state_callback_t` callback function.
+
+* UAC:
+  * Optimize speaker zero compensation logic (When speaker stream running and buffer empty for a long time, the host will padding n(ms) zero packets to avoid device noise)
+  * If UAC has multiple alt interfaces, chose the first as default
+
+### Bug Fixes:
+
+Add additional delay to avoid malloc error if continuous suspend and resume
+
+## v1.0.0 - 2023-05-10
+
+### Release v1.0.0
+
+### Enhancements:
+
+* USB:
+  * Refactor USB state machine, handle error and hot-plug more robustly.
+  * Support user submit control transfer at any time (Better to support more control requests in future).
+  * Support self-define initial state through `flags`, eg `FLAG_UAC_SPK_SUSPEND_AFTER_START` to make speaker suspend as startup state.
+  * Support Stream Quick Start Mode (Skip the enum process to save at least 50 ms).
+
+* UVC:
+  * Support get camera resolution list and current resolution.
+  * Support dynamically config UVC frame rate and resolution.
+
+* UAC:
+  * Support config UAC `*_ch_num`, `*_samples_frequence`, `*_bit_resolution` to `*_ANY` to adapter any available device.
+  * Support get audio frame rate and resolution list.
+  * Support dynamically config audio channel number, rate, and bits.
+
+* Test:
+  * Add hardware test for usb_stream component.
+
+### Bug Fixes:
+  * Fix some hot-plug issues
+  * Fix UAC control interface can not be 0
+  * Fix UAC stereo headset volume control failed
+
+### Breaking Changes:
+
+* UAC:
+  * Remove the configuration `mic_min_bytes` from `uac_config_t`, use KConfig option `CONFIG_UAC_MIC_CB_MIN_MS_DEFAULT` instead. The default value is 20 ms, which means the mic callback will be called every 20 ms.
+  * Add the configuration `flags` to `uac_config_t` and `uvc_config_t`, users can use it to define the initial state of the device. The default value is 0.
+  * Add the configuration `mic_ch_num` and `spk_ch_num` to `uac_config_t`, users can specify the number of the microphone and speaker channels. The default value is 0, which means support any number of channels.
+
+## v0.4.13 - 2023-04-13
+
+### Enhancements
+
+* test_apps:
+  * Update test_apps project
+
+## v0.4.12 - 2023-04-12
+
+### Bug Fixes:
+
+* Mic:
+  * Fix mic_min_bytes may exceed the limits
+
 ## v0.4.11 - 2023-03-22
 
 ### Bug Fixes:

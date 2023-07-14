@@ -30,8 +30,8 @@ static const char *TAG = "lightbulb";
  * @brief Resource Access Control
  *
  */
-#define LIGHTBULB_MUTEX_TAKE(delay_ms)                  (xSemaphoreTake(s_lb_obj->mutex, delay_ms))
-#define LIGHTBULB_MUTEX_GIVE()                          (xSemaphoreGive(s_lb_obj->mutex))
+#define LIGHTBULB_MUTEX_TAKE(delay_ms)                  (xSemaphoreTakeRecursive(s_lb_obj->mutex, delay_ms))
+#define LIGHTBULB_MUTEX_GIVE()                          (xSemaphoreGiveRecursive(s_lb_obj->mutex))
 
 /**
  * @brief Lightbulb function check
@@ -161,7 +161,7 @@ esp_err_t lightbulb_status_erase_nvs_storage(void)
 static uint16_t percentage_convert_to_kelvin(uint16_t percentage)
 {
     float _percentage = (float)percentage / 100;
-    uint16_t _kelvin = (_percentage * (s_lb_obj->kelvin_range.max - s_lb_obj->kelvin_range.min) + s_lb_obj->kelvin_range.max);
+    uint16_t _kelvin = (_percentage * (s_lb_obj->kelvin_range.max - s_lb_obj->kelvin_range.min) + s_lb_obj->kelvin_range.min);
 
     /* Convert to the nearest integer */
     _kelvin = (_kelvin / 100) * 100;
@@ -458,7 +458,7 @@ esp_err_t lightbulb_init(lightbulb_config_t *config)
     s_lb_obj = calloc(1, sizeof(lightbulb_obj_t));
     LIGHTBULB_CHECK(s_lb_obj, "calloc fail", goto EXIT);
 
-    s_lb_obj->mutex = xSemaphoreCreateMutex();
+    s_lb_obj->mutex = xSemaphoreCreateRecursiveMutex();
     LIGHTBULB_CHECK(s_lb_obj->mutex, "mutex create fail", goto EXIT);
 
     // hal configuration
@@ -483,7 +483,7 @@ esp_err_t lightbulb_init(lightbulb_config_t *config)
         driver_conf = (void *) & (config->driver_conf.bp5758d);
     }
 #endif
-#ifdef CONFIG_ENABLE_BP5758D_DRIVER
+#ifdef CONFIG_ENABLE_BP1658CJ_DRIVER
     if (config->type == DRIVER_BP1658CJ) {
         driver_conf = (void *) & (config->driver_conf.bp1658cj);
     }
@@ -870,8 +870,10 @@ esp_err_t lightbulb_kelvin2percentage(uint16_t kelvin, uint8_t *percentage)
 {
     LIGHTBULB_CHECK(s_lb_obj, "not init", return ESP_ERR_INVALID_ARG);
     LIGHTBULB_CHECK(percentage, "percentage is null", return ESP_ERR_INVALID_ARG);
-    LIGHTBULB_CHECK(kelvin > s_lb_obj->kelvin_range.max, "kelvin out of max range", return ESP_ERR_INVALID_ARG);
-    LIGHTBULB_CHECK(kelvin < s_lb_obj->kelvin_range.min, "kelvin out of min range", return ESP_ERR_INVALID_ARG);
+
+    if (kelvin >= s_lb_obj->kelvin_range.min && kelvin <= s_lb_obj->kelvin_range.max) {
+        ESP_LOGW(TAG, "kelvin out of range, will be forcibly converted");
+    }
 
     *percentage = kelvin_convert_to_percentage(kelvin);
 
@@ -882,7 +884,7 @@ esp_err_t lightbulb_percentage2kelvin(uint8_t percentage, uint16_t *kelvin)
 {
     LIGHTBULB_CHECK(s_lb_obj, "not init", return ESP_ERR_INVALID_ARG);
     LIGHTBULB_CHECK(kelvin, "kelvin is null", return ESP_ERR_INVALID_ARG);
-    LIGHTBULB_CHECK(percentage > 100, "percentage out of range", return ESP_ERR_INVALID_ARG);
+    LIGHTBULB_CHECK(percentage <= 100, "percentage out of range", return ESP_ERR_INVALID_ARG);
 
     *kelvin = percentage_convert_to_kelvin(percentage);
 
@@ -1114,20 +1116,17 @@ esp_err_t lightbulb_set_switch(bool status)
         }
         LIGHTBULB_MUTEX_GIVE();
     } else {
+        LIGHTBULB_MUTEX_TAKE(portMAX_DELAY);
         switch (s_lb_obj->status.mode) {
         case WORK_COLOR:
-            LIGHTBULB_MUTEX_TAKE(portMAX_DELAY);
             s_lb_obj->status.on = true;
             s_lb_obj->status.value = (s_lb_obj->status.value) ? s_lb_obj->status.value : 100;
-            LIGHTBULB_MUTEX_GIVE();
             err = lightbulb_set_hsv(s_lb_obj->status.hue, s_lb_obj->status.saturation, s_lb_obj->status.value);
             break;
 
         case WORK_WHITE:
-            LIGHTBULB_MUTEX_TAKE(portMAX_DELAY);
             s_lb_obj->status.on = true;
             s_lb_obj->status.brightness = (s_lb_obj->status.brightness) ? s_lb_obj->status.brightness : 100;
-            LIGHTBULB_MUTEX_GIVE();
             err = lightbulb_set_cctb(s_lb_obj->status.cct_percentage, s_lb_obj->status.brightness);
             break;
 
@@ -1135,6 +1134,7 @@ esp_err_t lightbulb_set_switch(bool status)
             ESP_LOGW(TAG, "This operation is not supported");
             break;
         }
+        LIGHTBULB_MUTEX_GIVE();
     }
 
     return err;
@@ -1304,7 +1304,7 @@ lightbulb_works_mode_t lightbulb_get_mode(void)
     return result;
 }
 
-esp_err_t  lightbulb_update_status_variable(lightbulb_status_t *new_status, bool trigger)
+esp_err_t lightbulb_update_status_variable(lightbulb_status_t *new_status, bool trigger)
 {
     LIGHTBULB_CHECK(new_status, "new_status is null", return ESP_FAIL);
     LIGHTBULB_CHECK(s_lb_obj, "not init", return ESP_ERR_INVALID_ARG);
@@ -1398,10 +1398,6 @@ esp_err_t lightbulb_basic_effect_start(lightbulb_effect_config_t *config)
                 vTimerSetTimerID(s_lb_obj->effect_timer, NULL);
             }
             xTimerStart(s_lb_obj->effect_timer, 0);
-            /* Make sure the timer has started running */
-            while (!CHECK_EFFECT_TIMER_IS_ACTIVE()) {
-                vTaskDelay(1);
-            }
             ESP_LOGI(TAG, "The auto-stop timer will trigger after %d ms.", config->total_ms);
         } else {
             ESP_LOGI(TAG, "The auto-stop timer is not running, the effect will keep running.");

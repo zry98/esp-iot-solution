@@ -1,0 +1,18 @@
+components/usb/usb_stream/test_apps:
+  enable:
+    - if: IDF_TARGET in ["esp32s2","esp32s3"]
+
+components/knob/test_apps:
+  enable:
+    - if: INCLUDE_DEFAULT == 1
+
+components/led/led_indicator/test_apps:
+  enable:
+    - if: INCLUDE_DEFAULT == 1
+
+components/openai:
+  enable:
+    - if: INCLUDE_DEFAULT == 1
+components/display/lcd/esp_lcd_panel_io_additions/test_apps:
+  enable:
+    - if: IDF_TARGET in ["esp32s3"]
