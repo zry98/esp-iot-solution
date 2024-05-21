@@ -2043,8 +2043,16 @@ IRAM_ATTR static void _uvc_process_payload(_uvc_stream_handle_t *strmh, size_t r
                 return;
             }
         } else if (strmh->reassembling) {
-            ESP_LOGV(TAG, "reassembling %u + %u", strmh->got_bytes, payload_len);
-            data_len = payload_len;
+            if (bulk_xfer) {
+                header_len = payload[0];
+                data_len = payload_len - header_len;
+                /* checking the end-of-header */
+                variable_offset = 2;
+                header_info = payload[1];
+            } else {
+                data_len = payload_len;
+            }
+            ESP_LOGV(TAG, "reassembling %u + %u", strmh->got_bytes, data_len);
         } else {
             if (payload_len > 1) {
 #ifdef CONFIG_UVC_CHECK_HEADER_EOH
